@@ -36,13 +36,13 @@ class SSRSProxy(Resource):
     @cors.crossdomain(origin='*')
     def get(self):
         #Need to sent get to wait time route below and use response instead of sample data
-        #resp = requests.get(f'https://google.ca')
+        resp = requests.get(f'https://api.analytics.gov.bc.ca/SBC-RT')
         #response = Response(resp.content, resp.status_code)
         f = open (filepath, "r")
-        g = open (sampledata, "r") 
+        #g = open (sampledata, "r") 
         # Reading from file 
         data = json.loads(f.read())
-        response = json.loads(g.read())
+        response = json.loads(resp.content)
 
         officelist=[]
         for office in data['features']:
