@@ -75,20 +75,20 @@ objects:
                   value: "${SECRET_KEY}"
                 - name: SERVER_NAME
                   value: "${API_APPLICATION_DOMAIN}"
-                - name: CACHE_DEFAULT_TIMEOUT
-                  value: "${CACHE_DEFAULT_TIMEOUT}"
-                - name: AUTH_URL
-                  value: "${AUTH_URL}"
-                - name: AUTH_CLIENT_ID
-                  value: "${AUTH_CLIENT_ID}"
-                - name: AUTH_CLIENT_SECRET
+                - name: JWT_OIDC_WELL_KNOWN_CONFIG
+                  value: "${JWT_OIDC_WELL_KNOWN_CONFIG}"
+                - name: JWT_OIDC_ALGORITHMS
+                  value: "${JWT_OIDC_ALGORITHMS}"
+                - name: JWT_OIDC_AUDIENCE
+                  value: "RS256"
+                - name: JWT_OIDC_CLIENT_SECRET
                   value: "${AUTH_CLIENT_SECRET}"
-                - name: APP_AUTH_URL
-                  value: "${APP_AUTH_URL}"
-                - name: APP_AUTH_CLIENT_ID
-                  value: "${APP_AUTH_CLIENT_ID}"
-                - name: APP_AUTH_CLIENT_SECRET
-                  value: "${APP_AUTH_CLIENT_SECRET}"
+                - name: JWT_OIDC_CACHING_ENABLED
+                  value: "True"
+                - name: JWT_OIDC_JWKS_CACHE_TIMEOUT
+                  value: "300"
+                - name: EDIT_GROUP
+                  value: "${EDIT_GROUP}"
                 - name: PRINT_ENABLE
                   value: "false"
                 - name: LOG_BASIC
@@ -165,7 +165,7 @@ parameters:
   - name: API_APPLICATION_DOMAIN
     description: "The exposed hostname that will route to the Flask service"
     required: true
-    value: ""
+    value: "wt-dashboard-api"
   - name: FLASK_ENV
     description: "The configuration object that should be loaded for this deployment."
     required: true
@@ -183,25 +183,15 @@ parameters:
     required: true
     generate: expression
     from: "[a-zA-Z0-9]{16}"
-  - name: AUTH_URL
-    description: "Keycloak auth URL for feedback"
+  - name: JWT_OIDC_WELL_KNOWN_CONFIG
+    description: "Keycloak config location"
     required: true
-    required: true
-  - name: AUTH_CLIENT_ID
-    description: "Keycloak client id"
-    required: true
-  - name: CORS_ALLOWED_ORIGINS
-    description: "CORS allowed origins"
-    required: true
-  - name: APP_AUTH_URL
-    description: "Application auth URL"
-    required: true
-  - name: APP_AUTH_CLIENT_ID
-    description: "Application auth client id"
-    required: true
-  - name: APP_AUTH_CLIENT_SECRET
-    description: "Application auth client secret"
+  - name: JWT_OIDC_AUDIENCE
+    description: "Keycloak Audience"
     required: true
   - name: AUTH_CLIENT_SECRET
     description: "Keycloak client secret"
+    required: true
+  - name: EDIT_GROUP
+    description: "The Keycloak group with permissions to edit the tabs"
     required: true
