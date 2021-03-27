@@ -44,6 +44,10 @@ export async function fetchConfig (): Promise<any> {
   sessionStorage.setItem('REGISTRY_URL', registryUrl)
   console.log('Set REGISTRY URL to: ' + registryUrl)
 
+  const editGroup: string = response.data.EDIT_GROUP
+  sessionStorage.setItem('EDIT_GROUP', editGroup)
+  console.log('Set EDIT GROUP to: ' + editGroup)
+
   const keycloakConfigPath: string = response.data.KEYCLOAK_CONFIG_PATH
   sessionStorage.setItem('KEYCLOAK_CONFIG_PATH', keycloakConfigPath)
   console.info('Set Keycloak Config Path to: ' + keycloakConfigPath)

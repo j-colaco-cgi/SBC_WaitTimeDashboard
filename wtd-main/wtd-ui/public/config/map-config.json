@@ -23,7 +23,7 @@
             ],
             "zoom": 5
         },
-        "baseMap": "Streets",
+        "baseMap": "Gray",
         "clusterOption": {
             "showCoverageOnHover": false
         },
@@ -200,7 +200,7 @@
             "isVisible": true,
             "opacity": 0.65,
             "isQueryable": true,
-            "popupTemplate": "<div>\t<div>\t\t<h2>{{ feature.title }}</h2>\t</div>\t<div>\t\t<table border=\"0\" width=\"100%\">\t\t\t<tbody>\t\t\t\t<tr>\t\t\t\t\t<td>{{ feature.properties['OFFICE_NAME']}}</td>\t\t\t\t</tr>\t\t\t\t<tr>\t\t\t\t\t<td>{{ feature.properties['OFFICE_ADDRESS'] }} {{feature.properties['OFFICE_CITY'] }}</td>\t\t\t\t</tr>\t\t\t\t<tr>\t\t\t\t\t<td>{{ feature.properties['BUSINESS_PHONE'] }}</td>\t\t\t\t</tr>\t\t\t</tbody>\t\t</table>\t</div>\t<br>\t<div style=\"background: #8080801; margin-bottom: 2px;\">\t\t<table border=\"0\" width=\"100%\">\t\t\t<colgroup>\t\t\t\t<col style=\"width:50%\">\t\t\t\t<col style=\"width:50%\">\t\t\t</colgroup>\t\t\t<tbody>\t\t\t\t<tr>\t\t\t\t\t<td>\t\t\t\t\t\t<b>Wait Time (min):</b> {{ feature.properties['WAIT_TIME'] }}\t\t\t\t\t</td>\t\t\t\t\t<td><b>People Waiting:</b> {{ feature.properties['WAIT_NUM'] }}</td>\t\t\t\t</tr>\t\t\t</tbody>\t\t</table>\t</div></div>",
+            "popupTemplate": "<div><div><h2>{{ feature.title }}</h2></div><div><table border=\"0\" width=\"100%\"><tbody><tr><td>{{ feature.properties['OFFICE_ADDRESS'] }}, {{feature.properties['OFFICE_CITY'] }}</td></tr></tbody></table></div><br><div style=\"background: #8080801; margin-bottom: 2px;\"><table border=\"0\" width=\"100%\"><colgroup><col style=\"width:50%\"><col style=\"width:50%\"></colgroup><tbody><tr><td><h3>Wait Time (min): {{ feature.properties['WAIT_TIME'] }}</h3></td><td><h3>People Waiting: {{ feature.properties['WAIT_NUM'] }}</h3></td></tr></tbody></table></div></div>",
             "attributes": [
                 {
                     "id": "OFFICE_NAME",

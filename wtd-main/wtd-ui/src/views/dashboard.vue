@@ -1,11 +1,21 @@
 <template>
   <v-container fluid>
     <v-card>
-      <v-card-title v-if="canEdit">
+      <v-card-title v-if="canEdit()">
         <v-row>
           <v-col>
-            <v-btn id="edit-btn" max-width="40" @click="editAction">
+            <v-btn id="edit-btn" max-width="40" :disabled="isEditing" @click="editAction">
               Edit
+            </v-btn>
+          </v-col>
+          <v-col v-if="isEditing">
+            <v-btn id="add-tab-btn" class="first-text-input" @click="addTabAction">
+              <v-icon>mdi-shape-square-plus</v-icon>
+              Add Tab
+            </v-btn>
+            <v-btn id="add-tile-btn" @click="addTabAction">
+              <v-icon>mdi-playlist-plus</v-icon>
+              Add Tile
             </v-btn>
           </v-col>
           <v-col v-if="isEditing">
@@ -85,11 +95,11 @@
               elevation="2"
               outlined
             >
-              <v-card-title v-if="!isEditing">{{tile.tileName}}</v-card-title>
-              <v-card-text v-if="!isEditing && tile.tileType=='SSRS_LINK'">
-                <iframe frameBorder="0" scrolling="no" style="width:100%;height:300px" :src="tile.tileURL"></iframe>
+              <v-card-title :class="{ hide: isEditing }">{{tile.tileName}}</v-card-title>
+              <v-card-text v-if="tile.tileType=='SSRS_LINK'">
+                <iframe v-if="!isEditing" frameBorder="0" scrolling="no" :src="tile.tileURL"></iframe>
               </v-card-text>
-              <v-card-text v-else-if="!isEditing && tile.tileType=='WAIT_MAP'">
+              <v-card-text v-if="tile.tileType=='WAIT_MAP'" :class="{ hide: isEditing }">
                 <wait-time-map>
                 </wait-time-map>
               </v-card-text>
@@ -185,6 +195,9 @@ export default class Dashboard extends Vue {
   @Prop({ default: false })
   private appReady: boolean
 
+  @Prop({ default: null })
+  private keyCloakGroups: string[]
+
   tabNumber: number = 0
 
   @Prop({ default: 'https://bcregistry.ca' })
@@ -197,7 +210,10 @@ export default class Dashboard extends Vue {
 
   private isEditing: boolean = false
 
-  private canEdit: boolean = true
+  private canEdit (): boolean {
+    // return Boolean(sessionStorage.getItem(SessionStorageKeys.KeyCloakToken))
+    return true
+  }
 
   private tileTypeList = [
     { key: APITileTypes.SSRS, desc: UITileTypes.SSRS },
@@ -230,7 +246,7 @@ export default class Dashboard extends Vue {
     console.log('app ready!')
     // do not proceed if app is not ready
     if (!val) return
-
+    this.visibleDashboards = []
     this.dashboards.forEach(val => this.visibleDashboards.push(Object.assign({}, val)))
 
     this.emitHaveData()
@@ -243,8 +259,12 @@ export default class Dashboard extends Vue {
   @Emit('updateDashboards')
   private emitUpdateDashboard (dashboards: DashboardTabIF[]): void { }
 
+  @Emit('getUpdateDashboards')
+  private emitGetUpdateDashboards (): void { }
+
   private editAction () {
-    this.isEditing = !this.isEditing
+    this.isEditing = true
+    this.emitGetUpdateDashboards()
   }
 
   private saveAction () {
@@ -293,8 +313,14 @@ export default class Dashboard extends Vue {
 }
 iframe {
   overflow: hidden;
+  width:100%;
+  height:300px;
 }
 .tab-edit {
   background-color: rgb(187, 209, 243);
+}
+
+.hide {
+  display: none;
 }
 </style>

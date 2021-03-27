@@ -48,8 +48,10 @@
           <router-view
             :appReady=appReady
             :dashboards=dashboards
+            :groups=keyCloakGroups
             @profileReady="profileReady = true"
             @updateDashboards="updateDashboardDetails"
+            @getUpdateDashboards="getEditDashboard"
             @haveData="haveData = true"
             @haveChanges="stateChangeHandler($event)"
           />
@@ -66,7 +68,7 @@
 import { Component, Watch, Mixins } from 'vue-property-decorator'
 import { Action, Getter } from 'vuex-class'
 import KeycloakService from 'sbc-common-components/src/services/keycloak.services'
-import { getKeycloakRolesFromService, updateLdUser, axios } from '@/utils'
+import { getKeycloakGroups, axios } from '@/utils'
 import AccountOverrideModule from '@/overrides/account-override'
 
 // Components
@@ -97,15 +99,11 @@ export default class App extends Mixins(AuthMixin) {
   @Getter getUserEmail!: string
   @Getter getUserFirstName!: string
   @Getter getUserLastName!: string
-  @Getter getUserRoles!: string
   @Getter getUserUsername!: string
-  @Getter isPremiumAccount!: boolean
 
   // Global setter
-  @Action setAuthRoles: ActionBindingIF
   @Action setDashboard: ActionBindingIF
   @Action setAccountInformation!: ActionBindingIF
-  @Action setKeycloakRoles!: ActionBindingIF
   @Action setUserInfo: ActionBindingIF
 
   // Local Properties
@@ -115,6 +113,7 @@ export default class App extends Mixins(AuthMixin) {
   private saveErrors: Array<object> = []
   private saveWarnings: Array<object> = []
   private dashboards: DashboardTabIF[] = null
+  private keyCloakGroups: string[] = null
 
   // FUTURE: change profileReady/appReady/haveData to a state machine?
 
@@ -246,49 +245,34 @@ export default class App extends Mixins(AuthMixin) {
     this.resetFlags()
 
     // get and store keycloak roles
+    console.log('LOADING AUTH-------------------------')
     try {
-      const keycloakRoles = getKeycloakRolesFromService()
-      this.setKeycloakRoles(keycloakRoles)
+      this.keyCloakGroups = getKeycloakGroups()
+      if (this.keyCloakGroups && this.keyCloakGroups.length > 0) {
+        console.log('key cloak groups: ' + this.keyCloakGroups)
+      } else {
+        throw new Error('Invalid Authroization Groups')
+      }
     } catch (error) {
       console.log('Keycloak error =', error) // eslint-disable-line no-console
       this.accountAuthorizationDialog = true
       return
     }
-    // ensure user is authorized for this profile (kept this in just in case)
     try {
-      await this.loadAuth()
+      await this.loadUserInfo()
     } catch (error) {
-      console.log('Auth error =', error) // eslint-disable-line no-console
+      console.log('User info error =', error) // eslint-disable-line no-console
       this.accountAuthorizationDialog = true
       return
     }
-
-    // load user info - this can be removed - rlo
-    // try {
-    //   await this.loadUserInfo()
-    // } catch (error) {
-    //   console.log('User info error =', error) // eslint-disable-line no-console
-    //   this.accountAuthorizationDialog = true
-    //   return
-    // }
     // load Dashboard details
     try {
-      await this.fetchDashboardDetails()
+      await this.fetchDashboardDetails('Tabs')
     } catch (error) {
       console.log('FetchDashboard details error =', error) // eslint-disable-line no-console
       this.accountAuthorizationDialog = true
       return
     }
-
-    // update Launch Darkly
-    // if (!this.isJestRunning) {
-    //   try {
-    //     await this.updateLaunchDarkly()
-    //   } catch (error) {
-    //     // just log the error -- no need to halt app
-    //     console.log('Launch Darkly update error =', error) // eslint-disable-line no-console
-    //   }
-    // }
 
     // finally, let router views know they can load their data
     console.log('app ready will be set:' + this.appReady)
@@ -323,30 +307,36 @@ export default class App extends Mixins(AuthMixin) {
     }
   }
 
-  private async fetchDashboardDetails (): Promise<any> {
-    const url = sessionStorage.getItem('WTD_API_URL')
+  private async fetchDashboardDetails (uri: string): Promise<any> {
+    const url = sessionStorage.getItem('WTD_API_URL') + '/' + uri
     const headers = {
       Accept: 'application/json',
       ResponseType: 'application/json',
       'Cache-Control': 'no-cache'
     }
-
-    console.log('URL: ' + url)
-
     const response = await axios.get(url, { headers }).catch(() => {
       return Promise.reject(new Error('Could not fetch dashboards.json'))
     })
-
-    /**
-     * authConfig is a workaround to fix the user settings call as it expects a URL with no trailing slash.
-     * This will be removed when a fix is made to sbc-common-components to handle this
-     */
     this.dashboards = response.data.tabs
+  }
+
+  private async getEditDashboard () {
+    this.haveData = false
+    this.appReady = false
+    try {
+      await this.fetchDashboardDetails('Tabs/edit')
+    } catch (error) {
+      console.log('FetchDashboard details error =', error) // eslint-disable-line no-console
+      this.accountAuthorizationDialog = true
+      return
+    }
+    this.appReady = true
+    this.haveData = true
   }
 
   private async updateDashboardDetails (updatedDashboards: DashboardTabIF[]): Promise<any> {
     // get config from environment
-    const url = sessionStorage.getItem('WTD_API_URL')
+    const url = sessionStorage.getItem('WTD_API_URL') + '/Tabs'
     const headers = {
       Accept: 'application/json',
       ResponseType: 'application/json',
@@ -389,18 +379,6 @@ export default class App extends Mixins(AuthMixin) {
     this.saveWarnings = []
   }
 
-  /** Fetches authorizations and verifies and stores roles. */
-  private async loadAuth (): Promise<any> {
-    // NB: roles array may contain 'view', 'edit', 'staff' or nothing
-    // change this to get roles from api once built
-    const authRoles = getKeycloakRolesFromService()
-    if (authRoles && authRoles.length > 0) {
-      this.setAuthRoles(authRoles)
-    } else {
-      throw new Error('Invalid auth roles')
-    }
-  }
-
   /** Fetches current user info and stores it. */
   private async loadUserInfo (): Promise<any> {
     // NB: will throw if API error
@@ -421,19 +399,6 @@ export default class App extends Mixins(AuthMixin) {
       const accountInfo = JSON.parse(currentAccount)
       this.setAccountInformation(accountInfo)
     }
-  }
-
-  /** Updates Launch Darkly with user info. */
-  private async updateLaunchDarkly (): Promise<any> {
-    // since username is unique, use it as the user key
-    const key: string = this.getUserUsername
-    const email: string = this.getUserEmail
-    const firstName: string = this.getUserFirstName
-    const lastName: string = this.getUserLastName
-    // remove leading { and trailing } and tokenize string
-    const custom: any = { roles: this.getUserRoles?.slice(1, -1).split(',') }
-
-    await updateLdUser(key, email, firstName, lastName, custom)
   }
 }
 </script>

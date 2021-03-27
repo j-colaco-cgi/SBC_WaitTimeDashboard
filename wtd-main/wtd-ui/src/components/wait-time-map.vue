@@ -11,6 +11,14 @@ import { Component, Vue } from 'vue-property-decorator'
 
 @Component({})
 export default class WaitTimeMap extends Vue {
+  created () {
+    console.log('--------CREATED')
+  }
+
+  beforeCreate () {
+    console.log('--------BEFORE CREATE')
+  }
+
   mounted () {
     console.log('WaitTimeMap mounted')
     const mapPlugin = document.createElement('script')

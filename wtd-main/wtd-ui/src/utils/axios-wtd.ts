@@ -8,7 +8,6 @@ const axios = Axios.create()
 axios.interceptors.request.use(
   config => {
     config.headers.common.Authorization = `Bearer ${sessionStorage.getItem(SessionStorageKeys.KeyCloakToken)}`
-    // config.headers.common['x-apikey'] = sessionStorage.getItem('WTD_API_KEY')
     const currentAccount = sessionStorage.getItem(SessionStorageKeys.CurrentAccount)
     if (currentAccount) {
       const accountInfo = JSON.parse(currentAccount)
@@ -17,7 +16,6 @@ axios.interceptors.request.use(
     return config
   },
   error => {
-    // console.log('axios interceptor set request headers error: ' + error)
     Promise.reject(error)
   }
 )
@@ -25,7 +23,6 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   response => response,
   error => {
-    // Sentry.captureException(error)
     return Promise.reject(error)
   }
 )

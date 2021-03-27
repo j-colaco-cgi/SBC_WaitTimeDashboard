@@ -4,7 +4,6 @@ import { StringLiteralType } from "typescript";
 export interface DashboardTabIF {
   tabName: string
   tabOrder: number
-  tabRoles: string[]
   tiles: DashboardTileIF[]
 }
 
@@ -13,7 +12,7 @@ export interface DashboardTileIF {
   tileOrder: number
   tileType: string
   tileURL: string
-  tileRoles: string[]
+  tileGroups: string[]
 }
 
 export interface DashboardPayloadIF {
