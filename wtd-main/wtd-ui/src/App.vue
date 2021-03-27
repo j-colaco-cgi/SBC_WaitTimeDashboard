@@ -48,7 +48,7 @@
           <router-view
             :appReady=appReady
             :dashboards=dashboards
-            :groups=keyCloakGroups
+            :keyCloakGroups=keyCloakGroups
             @profileReady="profileReady = true"
             @updateDashboards="updateDashboardDetails"
             @getUpdateDashboards="getEditDashboard"

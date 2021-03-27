@@ -13,7 +13,7 @@
               <v-icon>mdi-shape-square-plus</v-icon>
               Add Tab
             </v-btn>
-            <v-btn id="add-tile-btn" @click="addTabAction">
+            <v-btn id="add-tile-btn" @click="addTileAction">
               <v-icon>mdi-playlist-plus</v-icon>
               Add Tile
             </v-btn>
@@ -75,16 +75,6 @@
                       class="first-text-input"
                       v-model="dashboard.tabName"
                     />
-                  </v-col>
-                  <v-col
-                    cols="6"
-                    md="4"
-                  >
-                    <v-select
-                      :items="roleList"
-                      label="Roles"
-                      outlined
-                    ></v-select>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -157,9 +147,11 @@
                     md="4"
                   >
                     <v-select
-                      :items="roleList"
-                      label="Roles"
+                      :items="keyCloakGroups"
+                      label="Groups"
                       outlined
+                      multiple
+                      v-model="tile.tileGroups"
                     ></v-select>
                   </v-col>
                 </v-row>
@@ -218,10 +210,6 @@ export default class Dashboard extends Vue {
   private tileTypeList = [
     { key: APITileTypes.SSRS, desc: UITileTypes.SSRS },
     { key: APITileTypes.WAIT_MAP, desc: UITileTypes.WAIT_MAP }
-  ]
-
-  private roleList: string[] = [
-    'ROLE1', 'ROLE2', 'ADMIN'
   ]
 
   private get isAuthenticated (): boolean {
@@ -290,6 +278,14 @@ export default class Dashboard extends Vue {
     this.visibleDashboards = []
     this.dashboards.forEach(val => this.visibleDashboards.push(Object.assign({}, val)))
     this.isEditing = false
+  }
+
+  private addTileAction () {
+    console.log('Add Tile')
+  }
+
+  private addTabAction () {
+    console.log('Add Tile')
   }
 
   private deleteTab (index: number) {
