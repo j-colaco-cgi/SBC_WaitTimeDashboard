@@ -1,6 +1,6 @@
 FROM docker-remote.artifacts.developer.gov.bc.ca/node:10 as build-stage
 ENV NODE_ENV=prod
-ENV VUE_APP_PATH=/wtd/
+ENV VUE_APP_PATH=wtd/
 WORKDIR /app
 COPY ./package*.json ./
 RUN npm install
