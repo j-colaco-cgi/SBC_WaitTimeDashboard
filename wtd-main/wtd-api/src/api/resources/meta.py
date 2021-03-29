@@ -31,5 +31,5 @@ class Info(Resource):
     @cors.crossdomain(origin='*')
     def get(self):
         """Return a JSON object with meta information about the Service."""
-        version = os.getenv('OPENSHIFT_BUILD_COMMIT', 'unkown_version')
+        version = os.getenv('OPENSHIFT_BUILD_COMMIT', 'unknown_version')
         return jsonify(API=f'waittime-dashboard/{version}')

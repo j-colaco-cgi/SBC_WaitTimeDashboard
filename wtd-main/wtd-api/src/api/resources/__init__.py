@@ -50,7 +50,7 @@ API = Api(
     security=['apikey'],
     authorizations=AUTHORIZATIONS)
 
-API.add_namespace(OPS_API, path='')
-API.add_namespace(META_API, path='')
+API.add_namespace(OPS_API, path='/api/v1')
+API.add_namespace(META_API, path='/api/v1')
 API.add_namespace(TABS_API, path='/api/v1')
 API.add_namespace(WAITTIMEMAP_API, path='/api/v1/map')
