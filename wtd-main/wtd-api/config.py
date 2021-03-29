@@ -55,8 +55,6 @@ class _Config(object):  # pylint: disable=too-few-public-methods
 
     # Wait time API, the API that gets the wait times for all Service BC Offices
     WAIT_TIME_API_URL = os.getenv('WAIT_TIME_API', 'https://api.analytics.gov.bc.ca/SBC-RT')
-    # The URL of this API service, needed to be placed in the map-config.json
-    WAIT_TIME_MAP_URL = os.getenv('WAIT_TIME_MAP', 'WAIT_TIME_MAP_UNDEFINED')
 
     # JWT_OIDC Settings
     JWT_OIDC_WELL_KNOWN_CONFIG = os.getenv('JWT_OIDC_WELL_KNOWN_CONFIG')
