@@ -267,7 +267,7 @@ export default class App extends Mixins(AuthMixin) {
     }
     // load Dashboard details
     try {
-      await this.fetchDashboardDetails('Tabs')
+      await this.fetchDashboardDetails('tabs')
     } catch (error) {
       console.log('FetchDashboard details error =', error) // eslint-disable-line no-console
       this.accountAuthorizationDialog = true
@@ -324,7 +324,7 @@ export default class App extends Mixins(AuthMixin) {
     this.haveData = false
     this.appReady = false
     try {
-      await this.fetchDashboardDetails('Tabs/edit')
+      await this.fetchDashboardDetails('tabs/edit')
     } catch (error) {
       console.log('FetchDashboard details error =', error) // eslint-disable-line no-console
       this.accountAuthorizationDialog = true

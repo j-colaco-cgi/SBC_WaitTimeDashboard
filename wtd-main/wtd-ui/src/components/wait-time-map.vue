@@ -11,16 +11,9 @@ import { Component, Vue } from 'vue-property-decorator'
 
 @Component({})
 export default class WaitTimeMap extends Vue {
-  created () {
-    console.log('--------CREATED')
-  }
-
-  beforeCreate () {
-    console.log('--------BEFORE CREATE')
-  }
-
   mounted () {
     console.log('WaitTimeMap mounted')
+    const mapUrl: string = sessionStorage.getItem('WTD_API_URL') + '/map/config'
     const mapPlugin = document.createElement('script')
     // rlo - todo move this to the proper place
     mapPlugin.setAttribute(
@@ -33,7 +26,7 @@ export default class WaitTimeMap extends Vue {
     )
     mapPlugin.setAttribute(
       'smk-config',
-      '/config/map-config.json'
+      mapUrl
     )
     // mapPlugin.setAttribute(
     //   'smk-base-url',
