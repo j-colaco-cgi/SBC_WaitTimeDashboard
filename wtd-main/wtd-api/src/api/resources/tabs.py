@@ -26,7 +26,7 @@ import os
 
 from api.auth.auth import jwtmanager
 
-api = Namespace('', description='API for managing and obtaining tab information')
+api = Namespace('Tabs', description='API for managing and obtaining tab information')
 
 EDIT_GROUP = os.getenv('EDIT_GROUP')
 #filepath = 'C:/Users/josh.colaco/Documents/WaitTimeDashboard/wtd/SBC_DivApps/apps/wtd-main/wtd-api/src/api/resources/db.json'
@@ -40,7 +40,7 @@ def get_token(header):
     return header[len(PREFIX):]
 
 @cors_preflight('GET,POST,OPTIONS')
-@api.route('/Tabs', methods=['GET', 'POST', 'OPTIONS'])
+@api.route('/tabs', methods=['GET', 'POST', 'OPTIONS'])
 class TabManagement(Resource):
     """TabManagement resource."""
 
@@ -92,8 +92,8 @@ class TabManagement(Resource):
         else:
             return {'error': 'Unsufficient keycloak group permissions'}, 401
 
-@cors_preflight('GET,POST,OPTIONS')
-@api.route('/Tabs/edit', methods=['GET', 'OPTIONS'])
+@cors_preflight('GET,OPTIONS')
+@api.route('/tabs/edit', methods=['GET', 'OPTIONS'])
 class TabEditManagement(Resource):
 
     @cors.crossdomain(origin='*')

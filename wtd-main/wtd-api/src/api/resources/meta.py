@@ -21,7 +21,7 @@ from flask_restx import Resource
 from flask_restx import Namespace
 import os
 
-api = Namespace('', description='API for Sending Service BC Notifications')
+api = Namespace('', description='Application and Health Info API for Wait Time Dashboard')
 
 
 @api.route('/info')
@@ -31,5 +31,5 @@ class Info(Resource):
     @cors.crossdomain(origin='*')
     def get(self):
         """Return a JSON object with meta information about the Service."""
-        version = os.getenv('OPENSHIFT_BUILD_COMMIT', '')
-        return jsonify(API=f'notifications_api/{version}')
+        version = os.getenv('OPENSHIFT_BUILD_COMMIT', 'unkown_version')
+        return jsonify(API=f'waittime-dashboard/{version}')

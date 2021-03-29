@@ -18,25 +18,31 @@ from flask_restx import Namespace
 from flask_restx import Resource
 from flask_restx import reqparse
 from flask_restx import cors
-from requests_ntlm import HttpNtlmAuth
+from api.utilities.cors_util import cors_preflight
 import json
 import requests
 import os
 
 from api.auth.auth import jwtmanager
 
-api = Namespace('waittimemap', description='Map and fetch wait time map information')
+api = Namespace('Map', description='Map and fetch wait time map information')
 
 filepath = 'src/api/resources/service-bc-offices.json'
 sampledata = 'src/api/resources/samplemapdata.json'
+mapconfig = 'src/api/resources/map-config.json'
 
-@api.route('/WaitTimeMap',methods=['GET'])
-class SSRSProxy(Resource):
+WAIT_TIME_API_URL = os.getenv('WAIT_TIME_API', 'https://api.analytics.gov.bc.ca/SBC-RT')
+# The URL of this API service, needed to be placed in the map-config.json
+WAIT_TIME_MAP_URL = os.getenv('WAIT_TIME_MAP', 'WAIT_TIME_MAP_UNDEFINED')
+
+@cors_preflight('GET,OPTIONS')
+@api.route('/wait-time',methods=['GET'])
+class WaitTimeMap(Resource):
 
     @cors.crossdomain(origin='*')
     def get(self):
         #Need to sent get to wait time route below and use response instead of sample data
-        resp = requests.get(f'https://api.analytics.gov.bc.ca/SBC-RT')
+        resp = requests.get(WAIT_TIME_API_URL)
         #response = Response(resp.content, resp.status_code)
         f = open (filepath, "r")
         #g = open (sampledata, "r") 
@@ -54,4 +60,20 @@ class SSRSProxy(Resource):
         data['features'] = officelist
 
         return data
+
+@cors_preflight('GET,OPTIONS')
+@api.route('/config',methods=['GET'])
+class MapConfig(Resource):
+
     
+
+    @cors.crossdomain(origin='*')
+    def get(self):
+        """Return a JSON object of tab and tile information"""
+        # Fetch json file containing tab/tile info
+        f = open (mapconfig, "r") 
+        # Reading from file 
+        data = json.loads(f.read())
+        data['layers'][0]['dataUrl'] = WAIT_TIME_MAP_URL
+        return data, 200
+        

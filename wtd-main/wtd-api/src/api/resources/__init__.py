@@ -25,11 +25,9 @@ from flask_restx import Api
 
 # from .trace import API as TRACE_API
 from .tabs import api as TABS_API
-from .tiles import api as TILES_API
-from .dashboard_config import api as DASHBOARD_CONFIG_API
-from .keycloak_config import api as KEYCLOAK_CONFIG_API
-from .ssrs_reverse_proxy import api as SSRS_PROXY_API
 from .waittimemap import api as WAITTIMEMAP_API
+from .meta import api as META_API
+from .ops import api as OPS_API
 import os
 
 SSRS_BASE_URI = os.getenv('SSRS_BASE_URI')
@@ -52,9 +50,7 @@ API = Api(
     security=['apikey'],
     authorizations=AUTHORIZATIONS)
 
+API.add_namespace(OPS_API, path='')
+API.add_namespace(META_API, path='')
 API.add_namespace(TABS_API, path='/api/v1')
-API.add_namespace(TILES_API, path='/api/v1/tile')
-API.add_namespace(DASHBOARD_CONFIG_API, path='/api/v1/config')
-API.add_namespace(KEYCLOAK_CONFIG_API, path='/api/v1/config')
-API.add_namespace(SSRS_PROXY_API, path=f'/{SSRS_BASE_URI}')
-API.add_namespace(WAITTIMEMAP_API, path='/api/v1')
+API.add_namespace(WAITTIMEMAP_API, path='/api/v1/map')

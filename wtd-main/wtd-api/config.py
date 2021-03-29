@@ -50,22 +50,13 @@ class _Config(object):  # pylint: disable=too-few-public-methods
     """Base class configuration that should set reasonable defaults for all the other configurations. """
     PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
-    # SMS variables
-    SMS_USE_GC_NOTIFY = os.getenv('SMS_USE_GC_NOTIFY', 'true').lower() == 'true'
-    # GC Notify
-    GC_NOTIFY_API_KEY = os.getenv('GC_NOTIFY_API_KEY')
-    GC_NOTIFY_API_BASE_URL = os.getenv('GC_NOTIFY_API_BASE_URL')
-    GC_NOTIFY_SMS_TEMPLATE_ID = os.getenv('GC_NOTIFY_SMS_TEMPLATE_ID')
-    SMS_APPOINTMENT_APP_URL = os.getenv('SMS_APPOINTMENT_APP_URL')
-    APPOINTMENT_APP_URL = os.getenv('APPOINTMENT_APP_URL')
-
-    SSRS_SERVER = os.getenv('SSRS_SERVER')
-    SSRS_BASE_URI = os.getenv('SSRS_BASE_URI')
-    SSRS_SYSTEM_USER = os.getenv('SSRS_SYSTEM_USER')
-    SSRS_SYSTEM_CODE = os.getenv('SSRS_SYSTEM_CODE')
-
     #   Set up OIDC variables.
     SECRET_KEY = os.getenv('SECRET_KEY')
+
+    # Wait time API, the API that gets the wait times for all Service BC Offices
+    WAIT_TIME_API_URL = os.getenv('WAIT_TIME_API', 'https://api.analytics.gov.bc.ca/SBC-RT')
+    # The URL of this API service, needed to be placed in the map-config.json
+    WAIT_TIME_MAP_URL = os.getenv('WAIT_TIME_MAP', 'WAIT_TIME_MAP_UNDEFINED')
 
     # JWT_OIDC Settings
     JWT_OIDC_WELL_KNOWN_CONFIG = os.getenv('JWT_OIDC_WELL_KNOWN_CONFIG')
