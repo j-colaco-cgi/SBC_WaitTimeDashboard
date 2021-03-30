@@ -169,8 +169,6 @@ export default class App extends Mixins(AuthMixin) {
   }
 
   beforeCreate () {
-    console.log('before create on App.vue')
-    console.log('before create on App.vue' + this.$store)
     if (!this.$store.hasModule('account')) {
       this.$store.registerModule('account', AccountOverrideModule)
     }
@@ -275,11 +273,7 @@ export default class App extends Mixins(AuthMixin) {
     }
 
     // finally, let router views know they can load their data
-    console.log('app ready will be set:' + this.appReady)
-    // todo - rlo - the timing is off, this needs a fix
-    // setTimeout(() => { this.appReady = true }, 1000)
     this.appReady = true
-    console.log('app ready will be set:' + this.appReady)
   }
 
   /** Starts token service that refreshes KC token periodically. */
@@ -303,7 +297,7 @@ export default class App extends Mixins(AuthMixin) {
       sessionStorage.removeItem(SessionStorageKeys.CurrentAccount)
       // 2. reload app to get new tokens
       console.log(e)
-      // location.reload()
+      location.reload()
     }
   }
 
@@ -336,7 +330,9 @@ export default class App extends Mixins(AuthMixin) {
 
   private async updateDashboardDetails (updatedDashboards: DashboardTabIF[]): Promise<any> {
     // get config from environment
-    const url = sessionStorage.getItem('WTD_API_URL') + '/Tabs'
+    this.haveData = false
+    this.appReady = false
+    const url = sessionStorage.getItem('WTD_API_URL') + '/tabs'
     const headers = {
       Accept: 'application/json',
       ResponseType: 'application/json',
@@ -360,7 +356,7 @@ export default class App extends Mixins(AuthMixin) {
     // console.log('tabs response: ' + response)
     // console.log('tabs response: ' + response.data[0].tabName)
     // this.dashboards = response.data
-    console.log('dashboard: ' + this.dashboards[0].tabName)
+    location.reload()
   }
 
   /** Resets all error flags/states. */

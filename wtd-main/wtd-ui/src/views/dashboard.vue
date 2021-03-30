@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <v-card>
-      <v-card-title v-if="canEdit()">
+      <v-card-title v-if="canEdit">
         <v-row>
           <v-col>
             <v-btn id="edit-btn" max-width="40" :disabled="isEditing" @click="editAction">
@@ -86,15 +86,22 @@
               outlined
             >
               <v-card-title :class="{ hide: isEditing }">{{tile.tileName}}</v-card-title>
-              <v-card-text v-if="tile.tileType=='SSRS_LINK'">
-                <iframe v-if="!isEditing" frameBorder="0" scrolling="no" :src="tile.tileURL"></iframe>
+              <v-card-text v-if="tile.tileType=='SSRS_LINK' && !isEditing">
+                <iframe frameBorder="0" scrolling="no" :src="tile.tileURL"></iframe>
               </v-card-text>
-              <v-card-text v-if="tile.tileType=='WAIT_MAP'" :class="{ hide: isEditing }">
+              <v-card-text v-if="tile.tileType=='WAIT_MAP' && !isEditing">
                 <wait-time-map>
                 </wait-time-map>
               </v-card-text>
-              <v-card-text v-if="isEditing">
+              <v-card-text v-if="isEditing" class="edit-row">
                 <v-row no-gutters>
+                  <v-col
+                    cols="1"
+                  >
+                    <v-btn id="delete-tile-btn" @click="deleteTileAction(index)">
+                      <v-icon>mdi-delete-forever</v-icon>
+                    </v-btn>
+                  </v-col>
                   <v-col
                     cols="1"
                   >
@@ -105,9 +112,9 @@
                     />
                   </v-col>
                   <v-col
-                    cols="11"
-                    sm="5"
-                    md="7"
+                    cols="10"
+                    sm="4"
+                    md="6"
                   >
                     <v-text-field
                       class="first-text-input"
@@ -136,7 +143,7 @@
                     md="8"
                   >
                     <v-text-field
-                      @blur="handleBlueURL"
+                      @blur="handleBlurURL($event)"
                       class="first-text-input"
                       label="Tile URL"
                       v-model="tile.tileURL"
@@ -146,13 +153,27 @@
                     cols="6"
                     md="4"
                   >
-                    <v-select
-                      :items="keyCloakGroups"
-                      label="Groups"
-                      outlined
-                      multiple
+                    <v-combobox
                       v-model="tile.tileGroups"
-                    ></v-select>
+                      :items="keyCloakGroups"
+                      :search-input.sync="search"
+                      hide-selected
+                      label="Security Groups"
+                      multiple
+                      persistent-hint
+                      small-chips
+                      @change="search=''"
+                    >
+                      <template v-slot:no-data>
+                        <v-list-item>
+                          <v-list-item-content>
+                            <v-list-item-title>
+                              Press <kbd>enter</kbd> to add this group
+                            </v-list-item-title>
+                          </v-list-item-content>
+                        </v-list-item>
+                      </template>
+                    </v-combobox>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -173,7 +194,7 @@ import { SessionStorageKeys } from 'sbc-common-components/src/util/constants'
 // local
 // import { getFeatureFlag } from '@/utils'
 import { WaitTimeMap } from '@/components'
-import { SearchResponseIF, DashboardTabIF } from '@/interfaces' // eslint-disable-line no-unused-vars
+import { SearchResponseIF, DashboardTabIF, DashboardTileIF } from '@/interfaces' // eslint-disable-line no-unused-vars
 
 import { UITileTypes, APITileTypes } from '@/enums'
 
@@ -200,12 +221,9 @@ export default class Dashboard extends Vue {
 
   visibleDashboards: DashboardTabIF[] = []
 
-  private isEditing: boolean = false
+  private search: string = ''
 
-  private canEdit (): boolean {
-    // return Boolean(sessionStorage.getItem(SessionStorageKeys.KeyCloakToken))
-    return true
-  }
+  private isEditing: boolean = false
 
   private tileTypeList = [
     { key: APITileTypes.SSRS, desc: UITileTypes.SSRS },
@@ -221,11 +239,13 @@ export default class Dashboard extends Vue {
     window.location.assign(this.registryUrl)
   }
 
-  private handleBlueURL (e: FocusEvent) {
-    // if (!e.target.value.toLowerCase().startsWith('http://')) {
-    //   e.target.value = 'http://' + e.target.value
-    //   e.target.dispatchEvent(new Event('input'))
-    // }
+  private handleBlurURL (e: FocusEvent) {
+    const val: string = (e.target as HTMLInputElement).value.toLowerCase()
+    console.log('handle blur ' + e)
+    if (!val.startsWith('http://') && !val.startsWith('https://')) {
+      (e.target as HTMLInputElement).value = 'http://' + val
+      e.target.dispatchEvent(new Event('input'))
+    }
   }
 
   /** Called when App is ready and this component can load its data. */
@@ -238,6 +258,11 @@ export default class Dashboard extends Vue {
     this.dashboards.forEach(val => this.visibleDashboards.push(Object.assign({}, val)))
 
     this.emitHaveData()
+
+    if (this.keyCloakGroups != null) {
+      this.canEdit = this.keyCloakGroups.indexOf(sessionStorage.getItem('EDIT_GROUP')) >= 0
+    }
+    console.log('Groups: ' + this.keyCloakGroups)
   }
 
   /** Emits Have Data event. */
@@ -255,8 +280,11 @@ export default class Dashboard extends Vue {
     this.emitGetUpdateDashboards()
   }
 
+  private canEdit: boolean = false;
+
   private saveAction () {
-    this.isEditing = !this.isEditing
+    // this.isEditing = false
+    // this.isEditing = !this.isEditing
     /** Sort the tabs based on tabOrder */
     this.visibleDashboards.sort((a, b) => a.tabOrder - b.tabOrder)
     /** Renumber the tabOrder in case the tabOrder is not in sequential order */
@@ -271,21 +299,41 @@ export default class Dashboard extends Vue {
         this.visibleDashboards[i].tiles[j].tileOrder = tileCounter++
       }
     }
+    console.log('Dashboard:' + JSON.stringify(this.visibleDashboards))
     this.emitUpdateDashboard(this.visibleDashboards)
   }
 
   private cancelAction () {
-    this.visibleDashboards = []
-    this.dashboards.forEach(val => this.visibleDashboards.push(Object.assign({}, val)))
+    // this.visibleDashboards = []
+    // this.dashboards.forEach(val => this.visibleDashboards.push(Object.assign({}, val)))
     this.isEditing = false
+    location.reload()
   }
 
   private addTileAction () {
-    console.log('Add Tile')
+    const newTile: DashboardTileIF = {
+      tileName: 'New Tile',
+      tileOrder: 99,
+      tileType: 'SSRS_LINK',
+      tileURL: '',
+      tileGroups: []
+    }
+    this.visibleDashboards[this.tabNumber].tiles.push(newTile)
   }
 
   private addTabAction () {
+    const newTab: DashboardTabIF = {
+      tabOrder: 99,
+      tabName: 'New Tab',
+      tiles: []
+    }
+    this.visibleDashboards.push(newTab)
     console.log('Add Tile')
+  }
+
+  private deleteTileAction (index: number) {
+    console.log('Delete tile: ' + index)
+    this.visibleDashboards[this.tabNumber].tiles.splice(index, 1)
   }
 
   private deleteTab (index: number) {
@@ -314,6 +362,10 @@ iframe {
 }
 .tab-edit {
   background-color: rgb(187, 209, 243);
+}
+
+.edit-row {
+  margin-top: 15px;
 }
 
 .hide {
