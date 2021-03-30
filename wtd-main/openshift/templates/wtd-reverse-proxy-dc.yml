@@ -75,27 +75,34 @@ objects:
                   value: "${SECRET_KEY}"
                 - name: SERVER_NAME
                   value: "${API_APPLICATION_DOMAIN}"
-                - name: CACHE_DEFAULT_TIMEOUT
-                  value: "${CACHE_DEFAULT_TIMEOUT}"
-                - name: AUTH_URL
-                  value: "${AUTH_URL}"
-                - name: AUTH_CLIENT_ID
-                  value: "${AUTH_CLIENT_ID}"
-                - name: AUTH_CLIENT_SECRET
+                - name: JWT_OIDC_WELL_KNOWN_CONFIG
+                  value: "${JWT_OIDC_WELL_KNOWN_CONFIG}"
+                - name: JWT_OIDC_ALGORITHMS
+                  value: "RS256"
+                - name: JWT_OIDC_AUDIENCE
+                  value: "${JWT_OIDC_AUDIENCE}"
+                - name: JWT_OIDC_CLIENT_SECRET
                   value: "${AUTH_CLIENT_SECRET}"
-                - name: APP_AUTH_URL
-                  value: "${APP_AUTH_URL}"
-                - name: APP_AUTH_CLIENT_ID
-                  value: "${APP_AUTH_CLIENT_ID}"
-                - name: APP_AUTH_CLIENT_SECRET
-                  value: "${APP_AUTH_CLIENT_SECRET}"
+                - name: JWT_OIDC_CACHING_ENABLED
+                  value: "True"
+                - name: JWT_OIDC_JWKS_CACHE_TIMEOUT
+                  value: "300"
+                - name: SSRS_SERVER
+                  value: "${SSRS_SERVER}"
+                - name: SSRS_BASE_URI
+                  value: "${SSRS_BASE_URI}"
+                - name: SSRS_SYSTEM_USER
+                  value: "${SSRS_SYSTEM_USER}"
+                - name: SSRS_SYSTEM_CODE
+                  value: "${SSRS_SYSTEM_CODE}"
+                - name: INCLUDE_AUTH
+                  value: "${INCLUDE_AUTH}"
                 - name: PRINT_ENABLE
                   value: "false"
                 - name: LOG_BASIC
                   value: WARNING
                 - name: LOG_ROOT
                   value: WARNING
-
               ports:
                 - containerPort: 8080
               readinessProbe:
@@ -183,25 +190,27 @@ parameters:
     required: true
     generate: expression
     from: "[a-zA-Z0-9]{16}"
-  - name: AUTH_URL
-    description: "Keycloak auth URL for feedback"
+  - name: JWT_OIDC_WELL_KNOWN_CONFIG
+    description: "Keycloak config location"
     required: true
-    required: true
-  - name: AUTH_CLIENT_ID
-    description: "Keycloak client id"
-    required: true
-  - name: CORS_ALLOWED_ORIGINS
-    description: "CORS allowed origins"
-    required: true
-  - name: APP_AUTH_URL
-    description: "Application auth URL"
-    required: true
-  - name: APP_AUTH_CLIENT_ID
-    description: "Application auth client id"
-    required: true
-  - name: APP_AUTH_CLIENT_SECRET
-    description: "Application auth client secret"
+  - name: JWT_OIDC_AUDIENCE
+    description: "Keycloak Audience"
     required: true
   - name: AUTH_CLIENT_SECRET
     description: "Keycloak client secret"
+    required: true
+  - name: SSRS_SERVER
+    description: "SSRS server"
+    required: true
+  - name: SSRS_BASE_URI
+    description: "The base URI for the report server such as Report Server"
+    required: true
+  - name: SSRS_SYSTEM_USER
+    description: "SSRS user"
+    required: true
+  - name: SSRS_SYSTEM_CODE
+    description: "SSRS system code"
+    required: true
+  - name: INCLUDE_AUTH
+    description: "True/False, does the reverse proxy require auth"
     required: true

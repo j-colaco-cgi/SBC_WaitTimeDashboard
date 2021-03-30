@@ -45,10 +45,10 @@ API = Api(
     title='SSRS API',
     version='1.0',
     description='SSRS API for Service BC',
-    prefix='/wtd',
+    prefix='/',
     security=['apikey'],
     authorizations=AUTHORIZATIONS)
 
 API.add_namespace(OPS_API, path='/api/v1')
 API.add_namespace(META_API, path='/api/v1')
-API.add_namespace(SSRS_REVERSE_PROXY_API, path='/api/v1')
+API.add_namespace(SSRS_REVERSE_PROXY_API, path=f'/{SSRS_BASE_URI}')
