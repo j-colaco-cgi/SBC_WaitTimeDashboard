@@ -22,15 +22,11 @@ That are used to expose operational health information about the service, and me
 """
 
 from flask_restx import Api
-
-# from .trace import API as TRACE_API
 from .tabs import api as TABS_API
 from .waittimemap import api as WAITTIMEMAP_API
 from .meta import api as META_API
 from .ops import api as OPS_API
 import os
-
-SSRS_BASE_URI = os.getenv('SSRS_BASE_URI')
 
 # This will add the Authorize button to the swagger docs
 # TODO oauth2 & openid may not yet be supported by restplus <- check on this

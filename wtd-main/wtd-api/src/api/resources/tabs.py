@@ -18,7 +18,9 @@ from flask_restx import Namespace
 from flask_restx import Resource
 from flask_restx import reqparse
 from flask_restx import cors
+from jsonschema import validate
 from api.utilities.cors_util import cors_preflight
+from shutil import copyfile
 
 import json
 import jwt
@@ -29,9 +31,57 @@ from api.auth.auth import jwtmanager
 api = Namespace('Tabs', description='API for managing and obtaining tab information')
 
 EDIT_GROUP = os.getenv('EDIT_GROUP')
-#filepath = 'C:/Users/josh.colaco/Documents/WaitTimeDashboard/wtd/SBC_DivApps/apps/wtd-main/wtd-api/src/api/resources/db.json'
-filepath = 'src/api/resources/db.json'
+DB_FOLDER = os.getenv('DB_FOLDER', '/app/resources')
+
+BASE_FILE = 'src/api/resources/db.json'
+
+DB_FILE_PATH = f'{DB_FOLDER}{os.path.sep}db.json'
 PREFIX = 'Bearer '
+
+DB_JSON_SCHEMA = {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "tabs": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "tabName": {"type": "string"},
+                    "tabOrder": {"type": "integer"},
+                    "tiles": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "tileGroups": {
+                                    "type": "array",
+                                    "items": {"type": "string"}
+                                },
+                                "tileName": {"type": "string"},
+                                "tileOrder": {"type": "integer"},
+                                "tileType": {"type": "string"},
+                                "tileURL": {"type": "string"}
+                            },
+                            "required": [
+                                "tileName",
+                                "tileOrder",
+                                "tileType"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "tabName",
+                    "tabOrder",
+                ]
+            }
+        }
+    },
+    "required": [
+        "tabs"
+    ]
+}
 
 def get_token(header):
     if not header.startswith(PREFIX):
@@ -48,10 +98,13 @@ class TabManagement(Resource):
     @jwtmanager.requires_auth
     def get(self):
         """Return a JSON object of tab and tile information"""
+        if not os.path.exists(DB_FILE_PATH):
+            copyfile(BASE_FILE, DB_FILE_PATH)
         # Fetch json file containing tab/tile info
-        f = open (filepath, "r") 
+        f = open (DB_FILE_PATH, "r") 
         # Reading from file 
         data = json.loads(f.read())
+
         token = get_token(request.headers['Authorization'])
         decoded = jwt.decode(token, verify=False)
         groups = decoded['groups']
@@ -83,8 +136,11 @@ class TabManagement(Resource):
         groups = decoded['groups']
         if EDIT_GROUP in groups:
             data = request.get_json(force=True)
+            # Make sure that the data is valid json and fits the schema
+            validate(instance=data, schema=DB_JSON_SCHEMA)
+
             #verify = json.loads(data)
-            f = open (filepath, "w") 
+            f = open (DB_FILE_PATH, "w") 
             f.seek(0)
             # Reading from file 
             f.write(json.dumps(data))
@@ -104,7 +160,7 @@ class TabEditManagement(Resource):
         token = get_token(request.headers['Authorization'])
         decoded = jwt.decode(token, verify=False)
         groups = decoded['groups']
-        f = open (filepath, "r") 
+        f = open (DB_FILE_PATH, "r") 
         # Reading from file
         if EDIT_GROUP in groups: 
             data = json.loads(f.read())

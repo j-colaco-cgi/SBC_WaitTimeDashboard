@@ -34,6 +34,7 @@ mapconfig = 'src/api/resources/map-config.json'
 WAIT_TIME_API_URL = os.getenv('WAIT_TIME_API', 'https://api.analytics.gov.bc.ca/SBC-RT')
 # The URL of this API service, needed to be placed in the map-config.json
 WAIT_TIME_MAP_SERVER = os.getenv('SERVER_NAME', 'WAIT_TIME_MAP_UNDEFINED')
+MAP_USE_HTTPS = os.getenv('MAP_USE_HTTPS', 'True')
 
 @cors_preflight('GET,OPTIONS')
 @api.route('/wait-time',methods=['GET'])
@@ -72,6 +73,9 @@ class MapConfig(Resource):
         f = open (mapconfig, "r") 
         # Reading from file 
         data = json.loads(f.read())
-        data['layers'][0]['dataUrl'] = f'https://{WAIT_TIME_MAP_SERVER}/wtd/api/v1/map/wait-time'
+        if (MAP_USE_HTTPS == 'True'):
+            data['layers'][0]['dataUrl'] = f'https://{WAIT_TIME_MAP_SERVER}/wtd/api/v1/map/wait-time'
+        else:
+            data['layers'][0]['dataUrl'] = f'http://{WAIT_TIME_MAP_SERVER}/wtd/api/v1/map/wait-time'
         return data, 200
         
