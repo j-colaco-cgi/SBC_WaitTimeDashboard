@@ -17,8 +17,8 @@ objects:
     spec:
       ports:
         - name: web
-          port: 8080
-          targetPort: 8080
+          port: 5001
+          targetPort: 5001
       selector:
         app: "${API_NAME}"
   - apiVersion: v1
@@ -104,11 +104,11 @@ objects:
                 - name: LOG_ROOT
                   value: WARNING
               ports:
-                - containerPort: 8080
+                - containerPort: 5001
               readinessProbe:
                 httpGet:
                   path: /api/v1/healthz
-                  port: 8080
+                  port: 5001
                   scheme: HTTP
                 initialDelaySeconds: 30
                 timeoutSeconds: 5
@@ -120,7 +120,7 @@ objects:
               livenessProbe:
                 httpGet:
                   path: /api/v1/readyz
-                  port: 8080
+                  port: 5001
                   scheme: HTTP
                 initialDelaySeconds: 30
                 timeoutSeconds: 5
