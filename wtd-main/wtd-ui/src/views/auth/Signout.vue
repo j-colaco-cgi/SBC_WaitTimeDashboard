@@ -17,6 +17,10 @@ import SbcSignout from 'sbc-common-components/src/components/SbcSignout.vue'
 export default class Signout extends Vue {
   @Prop({ default: 'https://bcregistry.ca' })
   private registryUrl: string
+
+  created () {
+    console.log('-----------------signing out--------------')
+  }
 }
 </script>
 

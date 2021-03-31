@@ -13,7 +13,7 @@ import { Component, Vue } from 'vue-property-decorator'
 export default class WaitTimeMap extends Vue {
   mounted () {
     console.log('WaitTimeMap mounted')
-    const mapUrl: string = sessionStorage.getItem('WTD_API_URL') + '/map/config'
+    const mapUrl: string = './config/map-config.json'// sessionStorage.getItem('WTD_API_URL') + '/map/config'
     const mapPlugin = document.createElement('script')
     // rlo - todo move this to the proper place
     mapPlugin.setAttribute(
@@ -23,6 +23,10 @@ export default class WaitTimeMap extends Vue {
     mapPlugin.setAttribute(
       'smk-container-sel',
       '#smk-map-frame'
+    )
+    mapPlugin.setAttribute(
+      'smk-name',
+      'Service BC Dashboard'
     )
     mapPlugin.setAttribute(
       'smk-config',

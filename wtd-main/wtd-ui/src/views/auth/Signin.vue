@@ -25,7 +25,7 @@ export default class Signin extends Vue {
   @Prop({ default: 'https://bcregistry.ca' })
   private registryUrl: string
 
-  @Prop({ default: 'test' })
+  @Prop({ default: 'idir' })
   private idpDefaultHint!: string
 
   /** Called when user prowtfile is ready (ie, the user is authenticated). */

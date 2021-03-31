@@ -213,7 +213,7 @@ export default class Dashboard extends Vue {
 
   tabNumber: number = 0
 
-  @Prop({ default: 'https://bcregistry.ca' })
+  @Prop({ default: 'https://gov.bc.ca' })
   private registryUrl: string
 
   @Prop({ default: null })
@@ -241,7 +241,6 @@ export default class Dashboard extends Vue {
 
   private handleBlurURL (e: FocusEvent) {
     const val: string = (e.target as HTMLInputElement).value.toLowerCase()
-    console.log('handle blur ' + e)
     if (!val.startsWith('http://') && !val.startsWith('https://')) {
       (e.target as HTMLInputElement).value = 'http://' + val
       e.target.dispatchEvent(new Event('input'))
@@ -262,7 +261,6 @@ export default class Dashboard extends Vue {
     if (this.keyCloakGroups != null) {
       this.canEdit = this.keyCloakGroups.indexOf(sessionStorage.getItem('EDIT_GROUP')) >= 0
     }
-    console.log('Groups: ' + this.keyCloakGroups)
   }
 
   /** Emits Have Data event. */
@@ -299,7 +297,6 @@ export default class Dashboard extends Vue {
         this.visibleDashboards[i].tiles[j].tileOrder = tileCounter++
       }
     }
-    console.log('Dashboard:' + JSON.stringify(this.visibleDashboards))
     this.emitUpdateDashboard(this.visibleDashboards)
   }
 
@@ -328,16 +325,13 @@ export default class Dashboard extends Vue {
       tiles: []
     }
     this.visibleDashboards.push(newTab)
-    console.log('Add Tile')
   }
 
   private deleteTileAction (index: number) {
-    console.log('Delete tile: ' + index)
     this.visibleDashboards[this.tabNumber].tiles.splice(index, 1)
   }
 
   private deleteTab (index: number) {
-    console.log('delete tab ' + index)
     this.visibleDashboards.splice(index, 1)
   }
 }

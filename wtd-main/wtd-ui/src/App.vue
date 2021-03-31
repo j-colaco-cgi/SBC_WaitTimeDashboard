@@ -33,13 +33,14 @@
       </div>
     </transition>
 
-    <sbc-header
+    <wtd-header
         class="sbc-header"
         :inAuth="false"
         :redirectOnLoginSuccess="baseUrl"
         :redirectUrlLoginFail="registryUrl"
         :redirectOnLogout="registryUrl"
         :showActions="true"
+        :username=userName
       />
 
     <div class="app-body">
@@ -49,6 +50,7 @@
             :appReady=appReady
             :dashboards=dashboards
             :keyCloakGroups=keyCloakGroups
+            :registryUrl="registryUrl"
             @profileReady="profileReady = true"
             @updateDashboards="updateDashboardDetails"
             @getUpdateDashboards="getEditDashboard"
@@ -68,13 +70,15 @@
 import { Component, Watch, Mixins } from 'vue-property-decorator'
 import { Action, Getter } from 'vuex-class'
 import KeycloakService from 'sbc-common-components/src/services/keycloak.services'
-import { getKeycloakGroups, axios } from '@/utils'
+import { KCUserProfile } from 'sbc-common-components/src/models/KCUserProfile' // eslint-disable-line no-unused-vars
+import { getKeyCloakUserProfile, axios } from '@/utils'
 import AccountOverrideModule from '@/overrides/account-override'
 
 // Components
-import SbcHeader from 'sbc-common-components/src/components/SbcHeader.vue'
+import WtdHeader from './components/wtd-header.vue'
 import SbcFooter from 'sbc-common-components/src/components/SbcFooter.vue'
 import SbcAuthenticationOptionsDialog from 'sbc-common-components/src/components/SbcAuthenticationOptionsDialog.vue'
+
 import * as Dialogs from '@/components/dialogs'
 import * as Views from '@/views'
 
@@ -87,7 +91,7 @@ import { SessionStorageKeys } from 'sbc-common-components/src/util/constants'
 
 @Component({
   components: {
-    SbcHeader,
+    WtdHeader,
     SbcFooter,
     SbcAuthenticationOptionsDialog,
     ...Dialogs,
@@ -119,6 +123,8 @@ export default class App extends Mixins(AuthMixin) {
 
   /** Whether the user profile is ready (ie, auth is loaded) and we can init the app. */
   private profileReady: boolean = false
+
+  private userName: string = 'Hi'
 
   /** Whether the app is ready and the views can now load their data. */
   private appReady: boolean = false
@@ -224,9 +230,6 @@ export default class App extends Mixins(AuthMixin) {
       // start KC token service
       await this.startTokenService()
 
-      // load account information - rlo - can remove
-      this.loadAccountInformation()
-
       // initialize app
       await this.initApp()
     }
@@ -243,23 +246,16 @@ export default class App extends Mixins(AuthMixin) {
     this.resetFlags()
 
     // get and store keycloak roles
-    console.log('LOADING AUTH-------------------------')
     try {
-      this.keyCloakGroups = getKeycloakGroups()
-      if (this.keyCloakGroups && this.keyCloakGroups.length > 0) {
-        console.log('key cloak groups: ' + this.keyCloakGroups)
+      const userProfile: KCUserProfile = getKeyCloakUserProfile()
+      this.userName = userProfile.firstName
+      if (userProfile && userProfile.roles && userProfile.roles.length > 0) {
+        this.keyCloakGroups = userProfile.roles
       } else {
-        throw new Error('Invalid Authroization Groups')
+        this.keyCloakGroups = []
       }
     } catch (error) {
       console.log('Keycloak error =', error) // eslint-disable-line no-console
-      this.accountAuthorizationDialog = true
-      return
-    }
-    try {
-      await this.loadUserInfo()
-    } catch (error) {
-      console.log('User info error =', error) // eslint-disable-line no-console
       this.accountAuthorizationDialog = true
       return
     }
@@ -386,15 +382,6 @@ export default class App extends Mixins(AuthMixin) {
     // } else {
     //   throw new Error('Invalid user info')
     // }
-  }
-
-  /** Gets account information (e.g. Premium account) and stores it. */
-  private loadAccountInformation (): void {
-    const currentAccount = sessionStorage.getItem(SessionStorageKeys.CurrentAccount)
-    if (currentAccount) {
-      const accountInfo = JSON.parse(currentAccount)
-      this.setAccountInformation(accountInfo)
-    }
   }
 }
 </script>

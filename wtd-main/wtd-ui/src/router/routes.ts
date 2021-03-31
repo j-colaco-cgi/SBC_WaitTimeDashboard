@@ -37,7 +37,6 @@ export const routes = [
     name: RouteNames.DASHBOARD,
     component: Dashboard,
     meta: {
-      // rlo - changed this to false
       requiresAuth: true
     }
   },

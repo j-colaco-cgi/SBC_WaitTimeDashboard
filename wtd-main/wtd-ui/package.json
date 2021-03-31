@@ -17,7 +17,7 @@
     "flush-promises": "^1.0.2",
     "http-status-codes": "^2.1.4",
     "leaflet": "^1.7.1",
-    "sbc-common-components": "2.4.8",
+    "sbc-common-components": "^2.4.15",
     "sinon": "^9.2.4",
     "sortablejs": "^1.13.0",
     "terraformer": "^1.0.12",
