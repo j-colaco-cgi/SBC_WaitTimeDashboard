@@ -89,6 +89,9 @@ def validateRole(path, requestUrl):
     decoded = jwt.decode(token, verify=False)
     groups = decoded['groups']
 
+    #pthyon requests don't come as https for some reason so rename it before compare
+    requestUrl = requestUrl.replace('http://', 'https://')
+
     encodedRequestUrl = urllib.parse.quote(requestUrl)
     # Fetch json file containing tab/tile info
     f = open (DB_FILE_PATH, "r") 
@@ -98,8 +101,6 @@ def validateRole(path, requestUrl):
         for tile in tab['tiles']:
             tileUrl = tile['tileURL']
             encodedTileUrl = urllib.parse.quote(tileUrl)
-            print(f'TILE:{encodedTileUrl}')
-            print(f'REQUEST:{encodedRequestUrl}')
             if encodedTileUrl == encodedRequestUrl:
                 tilegroups = tile['tileGroups']
                 #Loop through check if role exists in the tile's group, if not remove tile  
