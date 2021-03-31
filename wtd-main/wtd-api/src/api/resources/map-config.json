@@ -1,6 +1,7 @@
 {
     "lmfId": "service-bc-wait-time-map",
     "lmfRevision": 18,
+    "name" : "Service BC Dashboard",
     "version": "",
     "createdBy": "",
     "published": true,
