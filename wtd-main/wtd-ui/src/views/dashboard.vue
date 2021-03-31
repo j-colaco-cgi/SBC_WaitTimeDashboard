@@ -87,7 +87,7 @@
             >
               <v-card-title :class="{ hide: isEditing }">{{tile.tileName}}</v-card-title>
               <v-card-text v-if="tile.tileType=='SSRS_LINK' && !isEditing">
-                <iframe frameBorder="0" scrolling="no" :src="tile.tileURL"></iframe>
+                <iframe frameBorder="0" scrolling="no" :src="getTileURL(tile.tileURL)"></iframe>
               </v-card-text>
               <v-card-text v-if="tile.tileType=='WAIT_MAP' && !isEditing">
                 <wait-time-map>
@@ -188,6 +188,7 @@
 <script lang="ts">
 // external
 import { Component, Emit, Prop, Vue, Watch } from 'vue-property-decorator'
+
 // bcregistry
 import { SessionStorageKeys } from 'sbc-common-components/src/util/constants'
 
@@ -195,6 +196,7 @@ import { SessionStorageKeys } from 'sbc-common-components/src/util/constants'
 // import { getFeatureFlag } from '@/utils'
 import { WaitTimeMap } from '@/components'
 import { SearchResponseIF, DashboardTabIF, DashboardTileIF } from '@/interfaces' // eslint-disable-line no-unused-vars
+import CryptoJS from 'crypto-js'
 
 import { UITileTypes, APITileTypes } from '@/enums'
 
@@ -244,6 +246,15 @@ export default class Dashboard extends Vue {
     if (!val.startsWith('http://') && !val.startsWith('https://')) {
       (e.target as HTMLInputElement).value = 'http://' + val
       e.target.dispatchEvent(new Event('input'))
+    }
+  }
+
+  private getTileURL (url: string) : string {
+    const token = CryptoJS.AES.encrypt(sessionStorage.getItem(SessionStorageKeys.KeyCloakToken), 'Secret Passphrase').toString() // eslint-disable-line max-len
+    if (url.includes('?') || url.includes('%3F')) {
+      return url + '&datatype=' + token
+    } else {
+      return url + '?datatype=' + token
     }
   }
 

@@ -17,6 +17,8 @@ import '@/assets/styles/base.scss'
 import '@/assets/styles/layout.scss'
 import '@/assets/styles/overrides.scss'
 
+import VueCryptojs from 'vue-cryptojs'
+
 import App from './App.vue'
 
 // Helpers
@@ -30,8 +32,8 @@ Vue.config.productionTip = false
 
 Vue.use(VueCompositionApi)
 Vue.use(Vuetify)
-// Vue.use(Affix)
 Vue.use(Vuelidate)
+Vue.use(VueCryptojs)
 
 // main code
 async function start () {
