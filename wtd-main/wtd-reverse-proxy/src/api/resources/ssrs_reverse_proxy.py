@@ -112,7 +112,7 @@ class SSRSProxy(Resource):
     @jwtcookiemanager.requires_auth
     def get(self, path):
         (result, message) = validateRole(path, request.url)
-        logging.debug(f'Endpoint Authorization: {message}')
+        print(f'Endpoint Authorization: {message}')
         if not result:
             return {'error': message}, 401
         query = request.query_string.decode()
