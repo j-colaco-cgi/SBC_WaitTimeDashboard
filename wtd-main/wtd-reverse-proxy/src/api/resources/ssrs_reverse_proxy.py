@@ -24,6 +24,7 @@ import json
 import requests
 import os
 import jwt
+import urllib.parse
 
 from api.utilities.cors_util import cors_preflight
 from api.auth.auth import jwtcookiemanager
@@ -88,6 +89,7 @@ def validateRole(path, requestUrl):
     decoded = jwt.decode(token, verify=False)
     groups = decoded['groups']
 
+    encodedRequestUrl = urllib.parse.quote(requestUrl)
     # Fetch json file containing tab/tile info
     f = open (DB_FILE_PATH, "r") 
     # Reading from file 
@@ -95,14 +97,17 @@ def validateRole(path, requestUrl):
     for tab in data['tabs']:
         for tile in tab['tiles']:
             tileUrl = tile['tileURL']
-            if tileUrl == requestUrl:
+            encodedTileUrl = urllib.parse.quote(tileUrl)
+            print(f'TILE:{encodedTileUrl}')
+            print(f'REQUEST:{encodedRequestUrl}')
+            if encodedTileUrl == encodedRequestUrl:
                 tilegroups = tile['tileGroups']
                 #Loop through check if role exists in the tile's group, if not remove tile  
                 if any(i in tilegroups for i in groups):
                     return (True, 'Authorization found')
                 else:
                     return (False, 'Unsufficient permissions')
-    return (False, 'Did not find matching URL')                        
+    return (False, f'Did not find matching URL for: [{requestUrl}]')                        
 
 @cors_preflight('GET,POST,OPTIONS')
 @api.route('/<path:path>',methods=['GET','POST','OPTIONS'])
