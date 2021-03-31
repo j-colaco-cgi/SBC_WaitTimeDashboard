@@ -13,6 +13,7 @@ export interface DashboardTileIF {
   tileType: string
   tileURL: string
   tileGroups: string[]
+  tileHeight: number
 }
 
 export interface DashboardPayloadIF {

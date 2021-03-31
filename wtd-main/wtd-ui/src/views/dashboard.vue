@@ -90,7 +90,7 @@
                 <iframe
                   frameBorder="0"
                   scrolling="no"
-                  :id="'iframe-' + tabNumber + '-' + index"
+                  :style="getTileHight(tile.tileHeight)"
                   :src="tile.tileURL">
                 </iframe>
               </v-card-text>
@@ -117,14 +117,23 @@
                     />
                   </v-col>
                   <v-col
-                    cols="10"
-                    sm="4"
-                    md="6"
+                    cols="9"
+                    sm="3"
+                    md="5"
                   >
                     <v-text-field
                       class="first-text-input"
                       label="Tile Title"
                       v-model="tile.tileName"
+                    />
+                  </v-col>
+                  <v-col
+                    cols="1"
+                  >
+                    <v-text-field
+                      class="first-text-input"
+                      label="Height"
+                      v-model="tile.tileHeight"
                     />
                   </v-col>
                   <v-col
@@ -231,6 +240,13 @@ export default class Dashboard extends Vue {
 
   private isEditing: boolean = false
 
+  private getTileHight (height: string): string {
+    if (height === '') {
+      return 'width:100%;height:200px;'
+    }
+    return 'width:100%;height:' + height + 'px;'
+  }
+
   private tileTypeList = [
     { key: APITileTypes.SSRS, desc: UITileTypes.SSRS },
     { key: APITileTypes.WAIT_MAP, desc: UITileTypes.WAIT_MAP }
@@ -319,7 +335,8 @@ export default class Dashboard extends Vue {
       tileOrder: 99,
       tileType: 'SSRS_LINK',
       tileURL: '',
-      tileGroups: []
+      tileGroups: [],
+      tileHeight: 300
     }
     this.visibleDashboards[this.tabNumber].tiles.push(newTile)
   }
@@ -341,40 +358,8 @@ export default class Dashboard extends Vue {
     this.visibleDashboards.splice(index, 1)
   }
 
-  private tabClicked () {
-    console.log('Tab Clicked')
-    if (!this.isEditing) {
-      let index: number = 0
-      this.visibleDashboards[this.tabNumber].tiles.forEach(val => this.populateIframe(val, index++))
-    }
-  }
-
   created () {
     this.$cookies.set('wtd-rp', sessionStorage.getItem(SessionStorageKeys.KeyCloakToken))
-  }
-
-  populateIframe (tile: DashboardTileIF, index: number) {
-    if (tile.tileType === 'SSRS_LINK') {
-      const iframe : HTMLIFrameElement = document.getElementById('iframe-' + this.tabNumber + '-' + index) as HTMLIFrameElement // eslint-disable-line max-len
-      var xhr = new XMLHttpRequest()
-      xhr.open('GET', tile.tileURL)
-      xhr.onreadystatechange = () => {
-        if (xhr.readyState === xhr.DONE) {
-          if (xhr.status === 200) {
-            iframe.srcdoc = xhr.response
-            // var content = iframe.contentWindow
-            // content.document.open()
-            // content.document.write(xhr.response)
-            // content.document.close()
-          } else {
-            console.error('Request failed', xhr.responseText)
-          }
-        }
-      }
-      // xhr.responseType = 'blob'
-      // xhr.setRequestHeader('Authorization', 'Bearer=' + sessionStorage.getItem(SessionStorageKeys.KeyCloakToken))
-      xhr.send()
-    }
   }
 }
 </script>
@@ -393,8 +378,6 @@ export default class Dashboard extends Vue {
 }
 iframe {
   overflow: hidden;
-  width:100%;
-  height:300px;
 }
 .tab-edit {
   background-color: rgb(187, 209, 243);
