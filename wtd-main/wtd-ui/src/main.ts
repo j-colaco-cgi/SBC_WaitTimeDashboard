@@ -17,7 +17,7 @@ import '@/assets/styles/base.scss'
 import '@/assets/styles/layout.scss'
 import '@/assets/styles/overrides.scss'
 
-import VueCryptojs from 'vue-cryptojs'
+import VueCookies from 'vue-cookies'
 
 import App from './App.vue'
 
@@ -33,7 +33,7 @@ Vue.config.productionTip = false
 Vue.use(VueCompositionApi)
 Vue.use(Vuetify)
 Vue.use(Vuelidate)
-Vue.use(VueCryptojs)
+Vue.use(VueCookies)
 
 // main code
 async function start () {

@@ -87,7 +87,12 @@
             >
               <v-card-title :class="{ hide: isEditing }">{{tile.tileName}}</v-card-title>
               <v-card-text v-if="tile.tileType=='SSRS_LINK' && !isEditing">
-                <iframe frameBorder="0" scrolling="no" :src="getTileURL(tile.tileURL)"></iframe>
+                <iframe
+                  frameBorder="0"
+                  scrolling="no"
+                  :id="'iframe-' + tabNumber + '-' + index"
+                  :src="tile.tileURL">
+                </iframe>
               </v-card-text>
               <v-card-text v-if="tile.tileType=='WAIT_MAP' && !isEditing">
                 <wait-time-map>
@@ -196,7 +201,6 @@ import { SessionStorageKeys } from 'sbc-common-components/src/util/constants'
 // import { getFeatureFlag } from '@/utils'
 import { WaitTimeMap } from '@/components'
 import { SearchResponseIF, DashboardTabIF, DashboardTileIF } from '@/interfaces' // eslint-disable-line no-unused-vars
-import CryptoJS from 'crypto-js'
 
 import { UITileTypes, APITileTypes } from '@/enums'
 
@@ -246,15 +250,6 @@ export default class Dashboard extends Vue {
     if (!val.startsWith('http://') && !val.startsWith('https://')) {
       (e.target as HTMLInputElement).value = 'http://' + val
       e.target.dispatchEvent(new Event('input'))
-    }
-  }
-
-  private getTileURL (url: string) : string {
-    const token = CryptoJS.AES.encrypt(sessionStorage.getItem(SessionStorageKeys.KeyCloakToken), 'Secret Passphrase').toString() // eslint-disable-line max-len
-    if (url.includes('?') || url.includes('%3F')) {
-      return url + '&datatype=' + token
-    } else {
-      return url + '?datatype=' + token
     }
   }
 
@@ -344,6 +339,42 @@ export default class Dashboard extends Vue {
 
   private deleteTab (index: number) {
     this.visibleDashboards.splice(index, 1)
+  }
+
+  private tabClicked () {
+    console.log('Tab Clicked')
+    if (!this.isEditing) {
+      let index: number = 0
+      this.visibleDashboards[this.tabNumber].tiles.forEach(val => this.populateIframe(val, index++))
+    }
+  }
+
+  created () {
+    this.$cookies.set('wtd-rp', sessionStorage.getItem(SessionStorageKeys.KeyCloakToken))
+  }
+
+  populateIframe (tile: DashboardTileIF, index: number) {
+    if (tile.tileType === 'SSRS_LINK') {
+      const iframe : HTMLIFrameElement = document.getElementById('iframe-' + this.tabNumber + '-' + index) as HTMLIFrameElement // eslint-disable-line max-len
+      var xhr = new XMLHttpRequest()
+      xhr.open('GET', tile.tileURL)
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === xhr.DONE) {
+          if (xhr.status === 200) {
+            iframe.srcdoc = xhr.response
+            // var content = iframe.contentWindow
+            // content.document.open()
+            // content.document.write(xhr.response)
+            // content.document.close()
+          } else {
+            console.error('Request failed', xhr.responseText)
+          }
+        }
+      }
+      // xhr.responseType = 'blob'
+      // xhr.setRequestHeader('Authorization', 'Bearer=' + sessionStorage.getItem(SessionStorageKeys.KeyCloakToken))
+      xhr.send()
+    }
   }
 }
 </script>
