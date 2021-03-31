@@ -359,7 +359,13 @@ export default class Dashboard extends Vue {
   }
 
   created () {
-    this.$cookies.set('wtd-rp', sessionStorage.getItem(SessionStorageKeys.KeyCloakToken))
+    // this.$cookies.set('wtd-rp', sessionStorage.getItem(SessionStorageKeys.KeyCloakToken))
+    this.$cookies.set(
+      'wtd-rp',
+      sessionStorage.getItem(SessionStorageKeys.KeyCloakToken),
+      null,
+      null,
+      'apps.silver.devops.gov.bc.ca') // domain address
   }
 }
 </script>
